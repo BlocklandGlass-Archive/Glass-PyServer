@@ -1,5 +1,7 @@
 from twisted.protocols.basic import LineReceiver
 
+from .verification import verifyDirectWrapperCert, verifyDirectClientCert
+
 
 STATE_AUTHING = 0
 STATE_OPEN = 1
@@ -20,18 +22,15 @@ class WrapperProtocol(LineReceiver):
         self.factory.unregisterWrapper(self.id, self)
 
     def lineReceived(self, line):
-        if   self.state == STATE_AUTHING:
-            try:
-                self.id = line
-                self.factory.registerWrapper(self.id, self)  # Currently using a naive "believe whatever they say auth strategy, should be fixed up later"
-
-                self.state = STATE_OPEN
-                self.sendLine(self.AUTH_SUCCESS)
-            except:  # Authentication failed
-                self.sendLine(self.AUTH_FAILED)
-        elif self.state == STATE_OPEN:
-            for i in self.clients:
-                i.sendLine(line)
+        if self.id == None:
+            id = verifyDirectWrapperCert(self.transport.getPeerCertificate())
+            if id:
+                self.id = id
+                self.factory.registerWrapper(self.id, self)
+            else:
+                self.transport.loseConnection()
+        for i in self.clients:
+            i.sendLine(line)
 
 
 class ClientProtocol(LineReceiver):
@@ -47,14 +46,11 @@ class ClientProtocol(LineReceiver):
             self.wrapper.clients.remove(self)
 
     def lineReceived(self, line):
-        if   self.state == STATE_AUTHING:
-            wrapper = self.factory.wrapperFactory.getWrapper(line)
-            if wrapper != None:
-                self.wrapper = wrapper
+        if self.wrapper == None:
+            wrapper = verifyDirectClientCert(self.transport.getPeerCertificate(), self.factory.wrapperFactory)
+            if wrapper:
+                self.wrapper = self.factory.wrapperFactory.getWrapper(wrapper)
                 self.wrapper.clients.add(self)
-                self.state = STATE_OPEN
-                self.sendLine(self.AUTH_SUCCESS)
-            else:  # Authentication failed
-                self.sendLine(self.AUTH_FAILED)
-        elif self.state == STATE_OPEN:
-            self.wrapper.sendLine(line)
+            else:
+                self.transport.loseConnection()
+        self.wrapper.sendLine(line)

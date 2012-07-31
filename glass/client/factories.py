@@ -1,8 +1,18 @@
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
 
 from . import protocols
+from ..constants import SSL_METHOD
+
+
+class ClientClientContextFactory(ssl.ClientContextFactory):
+    def getContext(self):
+        self.method = SSL_METHOD
+        ctx = ssl.ClientContextFactory.getContext(self)
+        ctx.use_certificate_file('keys/keys/clientcert.crt')
+        ctx.use_privatekey_file('keys/keys/clientkey.pem')
+        return ctx
 
 
 class ClientClientFactory(ClientFactory):

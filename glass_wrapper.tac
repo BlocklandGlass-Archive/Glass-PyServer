@@ -7,5 +7,5 @@ from glass.wrapper import factories
 application = service.Application("glass_wrapper")
 
 wrapperFactory = factories.WrapperClientFactory()
-wrapperService = internet.SSLClient("localhost", 9587, wrapperFactory, ssl.ClientContextFactory())
+wrapperService = internet.SSLClient("localhost", 9587, wrapperFactory, factories.WrapperClientContextFactory())
 wrapperService.setServiceParent(application)

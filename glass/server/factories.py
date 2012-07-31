@@ -1,21 +1,28 @@
 from twisted.internet.protocol import Factory
 
+from OpenSSL import crypto
+
 from . import protocols
-
-
-def verifyClientCert(*args, **kwargs):
-    return True
-
-
-def verifyWrapperCert():
-    pass
+from .verification import verifyClientCert, verifyWrapperCert
 
 
 class WrapperFactory(Factory):
     protocol = protocols.WrapperProtocol
 
-    def __init__(self):
+    def __init__(self, clientContext):
         self.wrappers = {}
+        self.clientContext = clientContext
+
+    def verifyCert(self):
+        def inner(connection, x509, errnum, errdepth, ok):
+            if ok and verifyWrapperCert(x509):
+                try:
+                    self.clientContext.get_cert_store().add_cert(x509)
+                except crypto.Error:
+                    pass
+                return True
+            return False
+        return inner
 
     def registerWrapper(self, id, wrapper):
         if not id:
@@ -35,7 +42,18 @@ class WrapperFactory(Factory):
 
 
 class ClientFactory(Factory):
+    protocol = protocols.ClientProtocol
+
     def __init__(self, wrapperFactory):
         self.wrapperFactory = wrapperFactory
 
-    protocol = protocols.ClientProtocol
+    def verifyCert(self):
+        def inner(connection, x509, errnum, errdepth, ok):
+            print ok
+            print "D:"
+            print verifyClientCert(x509, self.wrapperFactory)
+            if ok and verifyClientCert(x509, self.wrapperFactory):
+                print ":D", verifyClientCert(x509, self.wrapperFactory)
+                return True
+            return False
+        return inner

@@ -49,11 +49,7 @@ class ClientFactory(Factory):
 
     def verifyCert(self):
         def inner(connection, x509, errnum, errdepth, ok):
-            print ok
-            print "D:"
-            print verifyClientCert(x509, self.wrapperFactory)
             if ok and verifyClientCert(x509, self.wrapperFactory):
-                print ":D", verifyClientCert(x509, self.wrapperFactory)
                 return True
             return False
         return inner

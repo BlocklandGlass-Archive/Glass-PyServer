@@ -17,11 +17,8 @@ def verifyWrapperCert(x509):
 def verifyDirectClientCert(x509, wrapperFactory):
     if (x509.get_issuer().O == "BLG.Wrapper" and
         x509.get_subject().O == "BLG.Client"):
-            print ":|"
             if wrapperFactory.getWrapper(x509.get_issuer().OU) != None:
-                print ":)"
                 return x509.get_issuer().OU
-    print ":("
     return False
 
 

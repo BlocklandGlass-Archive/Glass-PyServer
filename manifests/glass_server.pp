@@ -93,7 +93,7 @@ exec { 'tap2deb':
 		Package['twisted'],
 		Package['dpkg-dev'],
 		Package['debhelper'],
-		File['/usr/local/bin/822-date'],
+		Exec['crlf2cr /usr/local/bin/822-date'],
 		Exec['python setup.py install'],
 		],
 

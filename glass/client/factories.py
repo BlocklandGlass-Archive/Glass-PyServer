@@ -20,7 +20,7 @@ class ClientClientFactory(ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         if reactor.running:
-            log.msg("Disconnected from master, stopping.")
+            log.msg("Disconnected from master, stopping. Press enter to exit.")
             reactor.stop()
 
     def clientConnectionFailed(self, connector, reason):

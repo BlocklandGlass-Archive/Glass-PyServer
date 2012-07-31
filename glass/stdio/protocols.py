@@ -2,13 +2,6 @@ from twisted.protocols.basic import LineReceiver
 from twisted.internet.threads import deferToThread
 from twisted.internet import reactor
 
-import sys
-
-try:
-    import msvcrt
-except ImportError:
-    pass  # Not Windows
-
 
 class StandardIO(object):
     def __init__(self, protocol):
@@ -22,31 +15,17 @@ class StandardIO(object):
 
     def start(self):
         if self.__worker == None:
-            def getWinInput():
-                if msvcrt.kbhit():
-                    char = msvcrt.getche()
-                    if char == "\r":
-                        sys.__stdout__.write("\n")
-                        char += "\n"
-                    return char
+            def gotInput(line):
+                def sendData(line):
+                    self.protocol.dataReceived(line + "\r\n")
 
-            def getInput():
-                if msvcrt == None:
-                    return sys.stdin.readline()
-                else:
-                    return getWinInput()  # reactor.callFromThread(getWinInput)
-
-            def gotInput(data):
-                def sendData(data):
-                    self.protocol.dataReceived(data)
-
-                if data:
-                    reactor.callFromThread(sendData, data)
+                if line:
+                    reactor.callFromThread(sendData, line)
                 if self.protocol != None:
                     self.__worker = None
                     self.start()
 
-            worker = deferToThread(getInput)
+            worker = deferToThread(raw_input)
             self.__worker = worker
             worker.addCallback(gotInput)
 

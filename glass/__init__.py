@@ -1,0 +1,1 @@
+from OpenSSL.SSL import SSLv3_METHOD as SSL_METHOD

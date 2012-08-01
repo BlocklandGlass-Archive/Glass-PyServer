@@ -5,11 +5,16 @@ from twisted.internet import ssl
 
 from OpenSSL import SSL
 
-from glass.server import factories
+from glass.server import factories, amqp_helpers
 from glass import SSL_METHOD, masterCA
 
 
 application = service.Application("glass_server")
+
+
+amqpFactory = amqp_helpers.AmqpFactory()
+amqpService = internet.TCPClient("localhost", 5672, amqpFactory)
+amqpService.setServiceParent(application)
 
 
 wrapperContextFactory = ssl.DefaultOpenSSLContextFactory("keys/keys/serverkey.pem", "keys/keys/servercert.crt", SSL_METHOD)
@@ -19,7 +24,7 @@ clientContextFactory = ssl.DefaultOpenSSLContextFactory("keys/keys/serverkey.pem
 clientContext = clientContextFactory.getContext()
 
 
-wrapperFactory = factories.WrapperFactory(clientContext)
+wrapperFactory = factories.WrapperFactory(clientContext, amqpFactory)
 
 wrapperContext.get_cert_store().add_cert(masterCA)
 wrapperContext.set_verify(

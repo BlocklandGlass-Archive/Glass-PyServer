@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-from distutils.cmd import Command
-
+from setuptools import setup, find_packages
 
 setup(name='glass',
       version='1.0',
-      packages=['glass', 'glass.server'],
-      cmdclass={
-        "keygen": keygen,
-      },
+      packages=find_packages(),
+
+      install_requires=[
+        'twisted>=12.1.0',
+        'txamqp>=0.6.1',
+        'txamqp-helpers>=0.5',
+        'pyOpenSSL>=0.13'
+      ]
      )

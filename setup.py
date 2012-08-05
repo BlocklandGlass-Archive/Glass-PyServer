@@ -10,6 +10,9 @@ setup(name='glass',
         'twisted>=12.1.0',
         'txamqp>=0.6.1',
         'txamqp-helpers>=0.5',
-        'pyOpenSSL>=0.13'
+        'pyOpenSSL>=0.13',
+        'Flask>=0.9',
+        'hamlish-jinja>=0.2',
+        'Flask-WTF>=0.8'
       ]
      )

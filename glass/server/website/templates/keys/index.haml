@@ -1,0 +1,11 @@
+-extends "keys/base.haml"
+
+-block content
+	%p
+		BlocklandGlass uses an asymmetric key-based authentication system of "public" and "private" keys. You can either generate your private keys on the site (more convenient) or generate them yourself (more secure, but we don't provide support on this). The public keys are then derived from the private keys and signed with a "CA" (certificate authority) key pair, in order to become a "certificate".
+
+	%p
+		Wrapper certificates are signed with the BLG master key pair, which is an operation which has to be done from this website as it requires access to the master's private key. However, we only need access to the public key, so any self-generated key pair is still secure.
+
+	%p
+		Client certificates are signed with the wrapper's key pair, which you can do by yourself, although we still provide a service doing this for you. However, we need access to the wrapper's private key in order to do this, so doing it through the website voids any extra security you would have got from generating it yourself.

@@ -1,11 +1,14 @@
 #import M2Crypto.SSL.TwistedProtocolWrapper
 
 from twisted.application import service, internet
-from twisted.internet import ssl
+from twisted.internet import ssl, reactor
+from twisted.web import server as web_server
+from twisted.web.wsgi import WSGIResource
+from twisted.python.threadpool import ThreadPool
 
 from OpenSSL import SSL
 
-from glass.server import factories, amqp_helpers
+from glass.server import factories, amqp_helpers, website
 from glass import SSL_METHOD, masterCA
 
 
@@ -49,3 +52,13 @@ clientContext.set_verify(
 
 clientService = internet.SSLServer(9588, clientFactory, clientContextFactory)
 clientService.setServiceParent(application)
+
+
+wsgiThreadPool = ThreadPool()
+wsgiThreadPool.start()
+reactor.addSystemEventTrigger('after', 'shutdown', wsgiThreadPool.stop)
+
+websiteResource = WSGIResource(reactor, wsgiThreadPool, website.application)
+websiteFactory = web_server.Site(websiteResource)
+websiteService = internet.TCPServer(8080, websiteFactory)
+websiteService.setServiceParent(application)

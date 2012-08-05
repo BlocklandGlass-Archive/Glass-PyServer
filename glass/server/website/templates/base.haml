@@ -1,0 +1,13 @@
+<!doctype html>
+%html
+	%head
+		-block head
+			%title -> -block title
+					Blockland Glass
+	%body
+		-block body
+			-block menu
+				%ul.main.menu
+					%li -> %a href="{{ url_for('index') }}" << Home
+					%li -> %a href="{{ url_for('keygen.index') }}" << test
+			-block content

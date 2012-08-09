@@ -1,0 +1,1 @@
+{"servers": {"testserver": {"directory": "C:/test/", "name": "Testing server", "manifests": ["http://update.blockland.us/latestVersion.php"]}}, "master_ip": "localhost", "eval_port": 9555, "master_port": 9587}
